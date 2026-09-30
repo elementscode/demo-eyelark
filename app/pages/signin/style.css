@@ -1,0 +1,44 @@
+@import "#app/shared/styles/page.css";
+
+.page-signin .signin-main {
+  padding-block: var(--space-12) var(--space-16);
+}
+
+.page-signin .signin-card {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.page-signin .signin-card h1 {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+
+.page-signin .field {
+  margin: 0;
+}
+
+.page-signin .logins {
+  width: 100%;
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.page-signin .login {
+  justify-content: space-between;
+  width: 100%;
+  height: auto;
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+}
+
+.page-signin .login-name {
+  font-weight: var(--weight-medium);
+}
+
+.page-signin .login-email {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}

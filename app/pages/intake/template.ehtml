@@ -1,0 +1,135 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { redirect, ValidationError } from "@elements/app";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { PRACTICE, VisitSummary, formatDateTime, visitType } from "#app/shared/practice";
+import { Eyewear, IntakeForm, saveIntake } from "./services";
+
+interface IntakeUi {
+  errors: Record<string, string[]>;
+  error: string;
+  busy: boolean;
+}
+
+const EYEWEAR: { id: Eyewear; label: string }[] = [
+  { id: "glasses", label: "Glasses" },
+  { id: "contacts", label: "Contact lenses" },
+  { id: "both", label: "Both" },
+  { id: "none", label: "Neither" },
+];
+
+/** A field's server error, until the patient fills the field in. */
+function fieldError(ui: IntakeUi, form: IntakeForm, key: keyof IntakeForm): string {
+  return form[key].trim() ? "" : ui.errors[key]?.[0] ?? "";
+}
+
+function onSubmit(visit: VisitSummary, form: IntakeForm, ui: IntakeUi) {
+  ui.busy = true;
+  ui.error = "";
+
+  try {
+    saveIntake(visit.token, form);
+    ui.errors = {};
+    redirect(`/visit/${visit.token}?intake=1`);
+  } catch (err: any) {
+    ui.busy = false;
+
+    if (err instanceof ValidationError && err.errors && Object.keys(err.errors).length > 0) {
+      ui.errors = err.errors as Record<string, string[]>;
+      return;
+    }
+
+    ui.error = err.message;
+  }
+}
+
+<html lang="en" class="page-intake" (
+  visit: VisitSummary,
+  initial: IntakeForm,
+  submitted: boolean,
+  private form: IntakeForm = initial,
+  private ui: IntakeUi = { errors: {}, error: "", busy: false },
+)>
+  <head>
+    <title>Intake form · {PRACTICE.name}</title>
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="patient" />
+
+      <main class="app-main">
+        <div class="page-shell is-form intake-main stack is-xl">
+          <div class="stack is-sm">
+            <a href={`/visit/${visit.token}`}>← Your visit</a>
+            <h1>Before your visit</h1>
+            <p class="lede">
+              {visitType(visit.type).label} with {visit.doctorName},
+              {formatDateTime(visit.startsAt)}.
+            </p>
+          </div>
+
+          <form class="stack is-lg" onsubmit={() => onSubmit(visit, form, ui)}>
+            <fieldset>
+              <legend>Insurance</legend>
+              <div class="pair">
+                <div class="field">
+                  <label for="insuranceProvider">Vision plan</label>
+                  <input id="insuranceProvider" value={form.insuranceProvider} placeholder="Plan name, or self-pay"
+                         class={[fieldError(ui, form, "insuranceProvider") && "is-error"]}>
+                  <p e:if={fieldError(ui, form, "insuranceProvider")} class="error">{fieldError(ui, form, "insuranceProvider")}</p>
+                </div>
+                <div class="field">
+                  <label for="insuranceMemberId">Member ID</label>
+                  <input id="insuranceMemberId" value={form.insuranceMemberId} autocomplete="off">
+                  <p class="hint">On the front of your card.</p>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>What you wear now</legend>
+              <div class="cluster eyewear-options" role="radiogroup">
+                <label e:for={o of EYEWEAR} key={o.id}>
+                  <input type="radio" name="eyewear" checked={form.eyewear === o.id} onchange={() => form.eyewear = o.id}>
+                  {o.label}
+                </label>
+              </div>
+              <div e:if={form.eyewear !== "none"} class="field">
+                <label for="eyewearNotes">Tell us about them</label>
+                <input id="eyewearNotes" value={form.eyewearNotes} placeholder="Brand, age, anything that bothers you">
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Your health</legend>
+              <div class="field">
+                <label for="symptoms">Symptoms or concerns</label>
+                <textarea id="symptoms" value={form.symptoms}
+                          placeholder="Blurry vision, headaches, dry or itchy eyes, floaters…"
+                          class={[fieldError(ui, form, "symptoms") && "is-error"]}></textarea>
+                <p e:if={fieldError(ui, form, "symptoms")} class="error">{fieldError(ui, form, "symptoms")}</p>
+              </div>
+              <div class="field">
+                <label for="medications">Current medications</label>
+                <textarea id="medications" value={form.medications}
+                          placeholder="Include eye drops and supplements"
+                          class={[fieldError(ui, form, "medications") && "is-error"]}></textarea>
+                <p e:if={fieldError(ui, form, "medications")} class="error">{fieldError(ui, form, "medications")}</p>
+              </div>
+            </fieldset>
+
+            <p e:if={ui.error} class="error" role="alert">{ui.error}</p>
+
+            <div class="row actions">
+              <a class="button is-ghost" href={`/visit/${visit.token}`}>Back</a>
+              <button type="submit" class={["is-primary is-lg", ui.busy && "is-loading"]} disabled={ui.busy}>
+                {submitted ? "Save changes" : "Send intake form"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

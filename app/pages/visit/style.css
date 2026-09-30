@@ -1,0 +1,53 @@
+@import "#app/shared/styles/page.css";
+
+.page-visit .visit-main {
+  padding-block: var(--space-10) var(--space-16);
+}
+
+.page-visit .visit-when {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.page-visit .visit-meta {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.page-visit .task {
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.page-visit .task h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.page-visit .task p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.page-visit .doctor-select {
+  max-width: 20rem;
+}
+
+@media (max-width: 40rem) {
+  .page-visit .task {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.page-visit .task > .button,
+.page-visit .task > .cluster {
+  flex: none;
+}
+
+.page-visit .card-body > h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}

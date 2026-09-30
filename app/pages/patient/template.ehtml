@@ -1,0 +1,164 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { recallState } from "#app/shared/services/patients";
+import {
+  AppointmentStatus,
+  AppointmentType,
+  PRACTICE,
+  STATUS_LABELS,
+  formatCalendarDate,
+  formatShortDate,
+  formatTime,
+  visitType,
+} from "#app/shared/practice";
+
+export interface PatientRecord {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  birthDate: string | null;
+  recallDate: string | null;
+  recallNoticeSentAt: Date | null;
+  createdAt: Date;
+}
+
+export interface PatientVisit {
+  id: string;
+  type: AppointmentType;
+  status: AppointmentStatus;
+  startsAt: Date;
+  doctorName: string;
+  intakeDone: boolean;
+}
+
+const STATUS_TONES: Record<AppointmentStatus, string> = {
+  booked: "is-accent",
+  checkedIn: "is-info",
+  completed: "is-success",
+  cancelled: "is-danger",
+};
+
+function upcoming(visits: PatientVisit[]): PatientVisit[] {
+  return visits
+    .filter((v) => v.status !== "completed" && v.status !== "cancelled" && v.startsAt.getTime() > Date.now() - 3_600_000)
+    .sort((a, b) => +a.startsAt - +b.startsAt);
+}
+
+function past(visits: PatientVisit[]): PatientVisit[] {
+  return visits.filter((v) => !upcoming(visits).includes(v));
+}
+
+function age(birthDate: string, today: string): number {
+  let years = Number(today.slice(0, 4)) - Number(birthDate.slice(0, 4));
+
+  return today.slice(5) < birthDate.slice(5) ? years - 1 : years;
+}
+
+<html lang="en" class="page-patient" (patient: PatientRecord, visits: PatientVisit[], today: string)>
+  <head>
+    <title>{patient.firstName} {patient.lastName} · {PRACTICE.name}</title>
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="desk" current="patients" />
+
+      <main class="app-main">
+        <div class="page-shell is-wide patient-main stack is-lg">
+          <a href="/desk/patients">← Patients</a>
+
+          <div class="row record-head">
+            <div class="stack is-xs">
+              <h1>{patient.firstName} {patient.lastName}</h1>
+              <p class="hint">Patient since {formatShortDate(patient.createdAt)}</p>
+            </div>
+            <a class="button is-primary" href={`/book?type=exam&email=${encodeURIComponent(patient.email)}`}>Book a visit</a>
+          </div>
+
+          <div class="record-grid">
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h2>Contact</h2></div>
+                <div class="card-body">
+                  <dl>
+                    <dt>Email</dt>
+                    <dd><a href={`mailto:${patient.email}`}>{patient.email}</a></dd>
+                    <dt>Phone</dt>
+                    <dd><a href={`tel:${patient.phone}`}>{patient.phone || "Not given"}</a></dd>
+                    <dt>Date of birth</dt>
+                    <dd>{patient.birthDate ? `${formatCalendarDate(patient.birthDate)} (${age(patient.birthDate, today)})` : "Not given"}</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h2>Next recall</h2></div>
+                <div class="card-body stack is-sm">
+                  <div class="cluster is-sm">
+                    <span class="recall-date">{patient.recallDate ? formatCalendarDate(patient.recallDate) : "Not set"}</span>
+                    <span e:if={recallState(patient.recallDate, today) === "overdue"} class="pill is-danger">Overdue</span>
+                    <span e:if={recallState(patient.recallDate, today) === "due"} class="pill is-warning">Due soon</span>
+                  </div>
+                  <p class="hint" e:if={patient.recallNoticeSentAt}>Recall email sent {formatShortDate(patient.recallNoticeSentAt!)}.</p>
+                  <p class="hint" e:else>Set a year after each completed exam.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h2>Upcoming</h2></div>
+                <div e:if={upcoming(visits).length === 0} class="card-body">
+                  <p class="empty">Nothing booked.</p>
+                </div>
+                <div e:else class="table-wrap">
+                  <table>
+                    <tbody>
+                      <tr e:for={v of upcoming(visits)}>
+                        <td>{formatShortDate(v.startsAt)}, {formatTime(v.startsAt)}</td>
+                        <td>{visitType(v.type).label}</td>
+                        <td>{v.doctorName}</td>
+                        <td>
+                          <div class="cluster is-xs">
+                            <span class={["pill", STATUS_TONES[v.status]]}>{STATUS_LABELS[v.status]}</span>
+                            <span e:if={v.intakeDone} class="pill is-success">Intake in</span>
+                            <span e:else class="pill is-warning">No intake</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h2>Past visits</h2></div>
+                <div e:if={past(visits).length === 0} class="card-body">
+                  <p class="empty">No past visits.</p>
+                </div>
+                <div e:else class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th>Date</th><th>Visit</th><th>Doctor</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr e:for={v of past(visits)} class={[v.status === "cancelled" && "is-cancelled"]}>
+                        <td>{formatShortDate(v.startsAt)}</td>
+                        <td>{visitType(v.type).label}</td>
+                        <td>{v.doctorName}</td>
+                        <td><span class={["pill", STATUS_TONES[v.status]]}>{STATUS_LABELS[v.status]}</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

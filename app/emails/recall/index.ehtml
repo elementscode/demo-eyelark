@@ -1,0 +1,27 @@
+import "./style.css";
+import { PRACTICE, formatCalendarDate } from "#app/shared/practice";
+
+/**
+ * Sent when a patient's yearly exam comes due.
+ *
+ * @email
+ */
+<html (firstName: string, recallDate: string, bookUrl: string)>
+  <body class="email recall">
+    <div class="email-wrap">
+      <p class="email-brand">{PRACTICE.name}</p>
+      <h1>Time for your yearly eye exam, {firstName}</h1>
+      <p>
+        Your next comprehensive exam is due {formatCalendarDate(recallDate)}.
+        A yearly exam keeps your prescription current and catches changes in
+        eye health early, often before you notice anything.
+      </p>
+
+      <p><a class="email-button" href={bookUrl}>Book your exam</a></p>
+
+      <div class="email-footer">
+        <p>{PRACTICE.name} · {PRACTICE.address} · {PRACTICE.phone}</p>
+      </div>
+    </div>
+  </body>
+</html>

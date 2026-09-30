@@ -1,0 +1,86 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { redirect } from "@elements/app";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { StaffLogin, signin } from "#app/shared/services/auth";
+import { PRACTICE } from "#app/shared/practice";
+
+interface SigninForm {
+  email: string;
+  password: string;
+  error: string;
+}
+
+function onSubmit(form: SigninForm) {
+  try {
+    signin(form.email, form.password);
+    form.error = "";
+    redirect("/desk");
+  } catch (err: any) {
+    form.error = err.message;
+  }
+}
+
+function onPick(form: SigninForm, login: StaffLogin, password: string) {
+  form.email = login.email;
+  form.password = password;
+  form.error = "";
+}
+
+<html lang="en" class="page-signin" (
+  logins: StaffLogin[],
+  password: string,
+  private form: SigninForm = { email: "", password: "", error: "" },
+)>
+  <head>
+    <title>Front desk sign in · {PRACTICE.name}</title>
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="patient" />
+
+      <main class="app-main">
+        <div class="page-shell signin-main stack is-xl">
+          <div class="card signin-card">
+            <form class="card-body stack" onsubmit={() => onSubmit(form)}>
+              <div class="stack is-xs">
+                <h1>Front desk</h1>
+                <p class="hint">Staff sign in for the day view and patient records.</p>
+              </div>
+
+              <p e:if={form.error} class="error" role="alert">{form.error}</p>
+
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" value={form.email} autocomplete="email"
+                       autocapitalize="none" spellcheck={false} required>
+              </div>
+
+              <div class="field">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" value={form.password}
+                       autocomplete="current-password" required>
+              </div>
+
+              <button type="submit" class="is-primary is-block">Sign in</button>
+            </form>
+          </div>
+
+          <div class="logins stack is-sm">
+            <p class="eyebrow">Demo staff logins · password <code>{password}</code></p>
+            <button e:for={login of logins}
+                    key={login.email}
+                    type="button"
+                    class="login row"
+                    onclick={() => onPick(form, login, password)}>
+              <span class="login-name">{login.name}</span>
+              <span class="login-email">{login.email}</span>
+            </button>
+            <p class="hint">Click one to fill in the form.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

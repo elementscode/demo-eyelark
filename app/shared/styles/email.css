@@ -1,0 +1,44 @@
+@import "@elements/style/email";
+@import "./vars.css";
+
+.email .email-brand {
+  margin: 0 0 24px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #2b6cb0;
+}
+
+.email .email-details {
+  width: 100%;
+  margin: 20px 0;
+  border-collapse: collapse;
+}
+
+.email .email-details td {
+  padding: 10px 0;
+  border-top: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.email .email-details td.label {
+  width: 120px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.email a.email-button {
+  display: inline-block;
+  margin: 8px 12px 8px 0;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background: #2b6cb0;
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.email a.email-button.is-quiet {
+  background: #eef2f7;
+  color: #1f2937;
+}
