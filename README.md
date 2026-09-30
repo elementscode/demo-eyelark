@@ -1,4 +1,4 @@
-![Eyelark, patient scheduling for an optometry practice built with Elements: the front desk day view with a column per doctor, each visit's type and intake status, checked-in patients and a visit that just checked in lighting up live.](POSTER_URL)
+![Eyelark, patient scheduling for an optometry practice built with Elements: the front desk day view with a column per doctor, each visit's type and intake status, checked-in patients and a visit that just checked in lighting up live.](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835/poster?v=bdd36b00c772)
 
 # Eyelark
 
@@ -6,7 +6,7 @@
 
 Patients book eye exams online by visit type and doctor and fill in intake forms; the front desk gets a live day view, check-in, patient records and yearly recall emails.
 
-**Demo:** [Eyelark](TBD)
+**Demo:** [Eyelark](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835)
 
 ## Agent specs
 
