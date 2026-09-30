@@ -1,0 +1,214 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import type { Listener } from "@elements/app";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import {
+  PRACTICE,
+  STATUS_LABELS,
+  addDays,
+  formatDay,
+  formatTime,
+  localDate,
+  visitType,
+} from "#app/shared/practice";
+import { DeskAppointment, DeskDay, checkIn, completeVisit, loadDay, undoCheckIn } from "./services";
+
+interface DeskState {
+  day: DeskDay;
+  picked: string;
+  fresh: string[];
+  error: string;
+}
+
+/** Applies a new read of the day, lighting up the rows that changed. */
+function apply(state: DeskState, next: DeskDay) {
+  let before = new Map(state.day.appointments.map((a) => [a.id, `${a.status}:${a.intakeDone}:${a.startsAt.getTime()}`]));
+  let changed = state.day.date === next.date
+    ? next.appointments.filter((a) => before.get(a.id) !== `${a.status}:${a.intakeDone}:${a.startsAt.getTime()}`).map((a) => a.id)
+    : [];
+
+  state.day = next;
+  state.picked = next.date;
+  state.error = "";
+
+  if (changed.length > 0) {
+    state.fresh = changed;
+    setTimeout(() => state.fresh = [], 2400);
+  }
+}
+
+function onNotify(state: DeskState, message: { day: string }) {
+  if (message.day === state.day.date) {
+    apply(state, loadDay(state.day.date));
+  }
+}
+
+function onDate(state: DeskState, date: string) {
+  if (!date) {
+    return;
+  }
+
+  state.fresh = [];
+  apply(state, loadDay(date));
+  history.replaceState(null, "", date === localDate() ? "/desk" : `/desk?date=${date}`);
+}
+
+function onAction(state: DeskState, action: "checkIn" | "complete" | "undo", id: string) {
+  try {
+    switch (action) {
+      case "checkIn":
+        apply(state, checkIn(id));
+        break;
+
+      case "complete":
+        apply(state, completeVisit(id));
+        break;
+
+      case "undo":
+        apply(state, undoCheckIn(id));
+        break;
+    }
+  } catch (err: any) {
+    state.error = err.message;
+    apply(state, loadDay(state.day.date));
+  }
+}
+
+function forDoctor(day: DeskDay, doctorId: string): DeskAppointment[] {
+  return day.appointments.filter((a) => a.doctorId === doctorId);
+}
+
+function tally(day: DeskDay) {
+  let live = day.appointments.filter((a) => a.status !== "cancelled");
+
+  return {
+    scheduled: live.length,
+    waiting: live.filter((a) => a.status === "checkedIn").length,
+    done: live.filter((a) => a.status === "completed").length,
+    noIntake: live.filter((a) => a.status === "booked" && !a.intakeDone).length,
+  };
+}
+
+function lastName(name: string): string {
+  return name.replace(/^Dr\.\s*/, "");
+}
+
+<html lang="en" class="page-desk" (
+  initialDay: DeskDay,
+  listener: Listener<{ day: string }>,
+  private state: DeskState = { day: initialDay, picked: initialDay.date, fresh: [], error: "" },
+) oninit={() => listener.on("notify", (m) => onNotify(state, m))}>
+  <head>
+    <title>Day view · {PRACTICE.name}</title>
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="desk" current="day" />
+
+      <main class="app-main">
+        <div class="page-shell is-wide desk-main stack is-xl">
+          <div class="row day-bar">
+            <div class="stack is-xs">
+              <p class="eyebrow">{state.day.date === localDate() ? "Today" : "Day view"}</p>
+              <h1>{formatDay(state.day.date)}</h1>
+            </div>
+
+            <div class="cluster day-controls">
+              <span class="live row" title="Updates as patients book and check in">
+                <span class="live-dot"></span>
+                Live
+              </span>
+              <div class="button-group">
+                <button aria-label="Previous day" onclick={() => onDate(state, addDays(state.day.date, -1))}>←</button>
+                <button disabled={state.day.date === localDate()} onclick={() => onDate(state, localDate())}>Today</button>
+                <button aria-label="Next day" onclick={() => onDate(state, addDays(state.day.date, 1))}>→</button>
+              </div>
+              <input type="date" aria-label="Go to date" value={state.picked} onchange={() => onDate(state, state.picked)}>
+            </div>
+          </div>
+
+          <p e:if={state.error} class="error" role="alert">{state.error}</p>
+
+          <div class="tallies">
+            <div class="tally">
+              <span class="tally-value">{tally(state.day).scheduled}</span>
+              <span class="tally-label">Scheduled</span>
+            </div>
+            <div class="tally">
+              <span class="tally-value">{tally(state.day).waiting}</span>
+              <span class="tally-label">Checked in</span>
+            </div>
+            <div class="tally">
+              <span class="tally-value">{tally(state.day).done}</span>
+              <span class="tally-label">Complete</span>
+            </div>
+            <div class="tally">
+              <span class="tally-value">{tally(state.day).noIntake}</span>
+              <span class="tally-label">Intake missing</span>
+            </div>
+          </div>
+
+          <div class="columns">
+            <section e:for={doctor of state.day.doctors} class="card">
+              <div class="card-head row doctor-head">
+                <h2>{doctor.name}</h2>
+                <span class="pill">{forDoctor(state.day, doctor.id).filter((a) => a.status !== "cancelled").length} visits</span>
+              </div>
+
+              <ul e:if={forDoctor(state.day, doctor.id).length > 0} class="appt-list">
+                <li e:for={a of forDoctor(state.day, doctor.id)}
+                    class={["appt", `is-${a.status}`, state.fresh.includes(a.id) && "is-fresh"]}>
+                  <div class="appt-time">
+                    {formatTime(a.startsAt)}
+                    <small>{visitType(a.type).minutes} min</small>
+                  </div>
+
+                  <div class="appt-who">
+                    <a class="appt-name" href={`/desk/patients/${a.patientId}`}>{a.patientName}</a>
+                    <div class="cluster is-xs">
+                      <span class="pill">{visitType(a.type).label}</span>
+                      <span e:if={a.status !== "cancelled" && a.intakeDone} class="pill is-success">
+                        <span class="pill-dot"></span>
+                        Intake in
+                      </span>
+                      <span e:if={a.status !== "cancelled" && !a.intakeDone} class="pill is-warning">
+                        <span class="pill-dot"></span>
+                        No intake
+                      </span>
+                      <span e:if={a.firstVisit} class="pill is-info">New patient</span>
+                    </div>
+                    <div e:if={a.status === "checkedIn" && a.checkedInAt} class="appt-note">
+                      Arrived {formatTime(a.checkedInAt!)}
+                    </div>
+                  </div>
+
+                  <div class="appt-actions cluster is-xs">
+                    <button e:if={a.status === "booked" && state.day.date === localDate()}
+                            class="is-sm"
+                            onclick={() => onAction(state, "checkIn", a.id)}>
+                      Check in
+                    </button>
+                    <button e:if={a.status === "checkedIn"}
+                            class="is-ghost is-sm"
+                            onclick={() => onAction(state, "undo", a.id)}>
+                      Undo
+                    </button>
+                    <button e:if={a.status === "checkedIn"}
+                            class="is-primary is-sm"
+                            onclick={() => onAction(state, "complete", a.id)}>
+                      Mark complete
+                    </button>
+                    <span e:if={a.status === "completed"} class="pill is-success">{STATUS_LABELS.completed}</span>
+                    <span e:if={a.status === "cancelled"} class="pill is-danger">{STATUS_LABELS.cancelled}</span>
+                  </div>
+                </li>
+              </ul>
+              <p e:else class="empty">No visits with {lastName(doctor.name)} this day.</p>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

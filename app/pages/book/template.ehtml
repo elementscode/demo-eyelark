@@ -1,0 +1,227 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { redirect, ValidationError } from "@elements/app";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { SlotPicker, PickerState, refreshPicker } from "#app/shared/templates/slot-picker";
+import { BookingForm, bookAppointment } from "#app/shared/services/schedule";
+import {
+  AppointmentType,
+  Doctor,
+  PRACTICE,
+  VISIT_TYPES,
+  formatDateTime,
+  formatTime,
+  visitType,
+} from "#app/shared/practice";
+
+export interface BookingUi {
+  errors: Record<string, string[]>;
+  error: string;
+  busy: boolean;
+}
+
+function initials(name: string): string {
+  return name.replace(/^Dr\.\s*/, "").split(" ").map((w) => w[0]).join("");
+}
+
+function doctorName(doctors: Doctor[], id: string): string {
+  return doctors.find((d) => d.id === id)?.name ?? "";
+}
+
+function onType(picker: PickerState, type: AppointmentType) {
+  picker.type = type;
+  refreshPicker(picker);
+}
+
+function onDoctor(picker: PickerState, doctorId: string) {
+  picker.doctorId = doctorId;
+  refreshPicker(picker);
+}
+
+function onSubmit(form: BookingForm, picker: PickerState, ui: BookingUi) {
+  ui.busy = true;
+  ui.error = "";
+
+  form.type = picker.type;
+  form.doctorId = picker.doctorId;
+  form.startsAt = picker.startsAt;
+
+  try {
+    let token = bookAppointment(form);
+    ui.errors = {};
+    redirect(`/visit/${token}?booked=1`);
+  } catch (err: any) {
+    ui.busy = false;
+
+    if (err instanceof ValidationError && err.errors && Object.keys(err.errors).length > 0) {
+      ui.errors = err.errors as Record<string, string[]>;
+      return;
+    }
+
+    ui.errors = {};
+    ui.error = err.message;
+    refreshPicker(picker);
+  }
+}
+
+/** The doctor the held time is with: the one asked for, or the first free. */
+function heldDoctor(picker: PickerState): string {
+  let slot = picker.slots.find((s) => s.startsAt.getTime() === picker.startsAt?.getTime());
+
+  return picker.doctorId || slot?.doctorIds[0] || "";
+}
+
+<html lang="en" class="page-book" (
+  doctors: Doctor[],
+  initialForm: BookingForm,
+  initialPicker: PickerState,
+  private form: BookingForm = initialForm,
+  private picker: PickerState = initialPicker,
+  private ui: BookingUi = { errors: {}, error: "", busy: false },
+)>
+  <head>
+    <title>Book a visit · {PRACTICE.name}</title>
+    <meta name="description" content="Book an eye exam, contact lens fitting or follow-up.">
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="patient" />
+
+      <main class="app-main">
+        <div class="page-shell is-form book-main stack is-2xl">
+          <div class="stack is-sm">
+            <h1>Book a visit</h1>
+            <p class="lede">Takes about a minute. No account needed.</p>
+            <p class="practice-line">{PRACTICE.name} · {PRACTICE.address} · <a href={`tel:${PRACTICE.phone}`}>{PRACTICE.phone}</a></p>
+          </div>
+
+          <section class="step stack">
+            <div class="step-head row is-start">
+              <span class="step-num">1</span>
+              <h2>Type of visit</h2>
+            </div>
+            <div class="choice-grid is-types" role="radiogroup" aria-label="Type of visit">
+              <button e:for={t of VISIT_TYPES}
+                      key={t.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={picker.type === t.id}
+                      class={["choice", picker.type === t.id && "is-selected"]}
+                      onclick={() => onType(picker, t.id)}>
+                <span class="choice-title">{t.label}</span>
+                <span class="choice-meta">{t.minutes} min</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="step stack">
+            <div class="step-head row is-start">
+              <span class="step-num">2</span>
+              <h2>Doctor</h2>
+            </div>
+            <div class="choice-grid is-doctors" role="radiogroup" aria-label="Doctor">
+              <button type="button"
+                      role="radio"
+                      aria-checked={picker.doctorId === ""}
+                      class={["choice", picker.doctorId === "" && "is-selected"]}
+                      onclick={() => onDoctor(picker, "")}>
+                <span class="avatar is-any" aria-hidden="true">
+                  <svg viewBox="0 0 20 20" width="18" height="18" focusable="false"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 5.8V10l2.8 1.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </span>
+                <span class="choice-text">
+                  <span class="choice-title">First available</span>
+                  <span class="choice-meta">The most open times</span>
+                </span>
+              </button>
+              <button e:for={d of doctors}
+                      type="button"
+                      role="radio"
+                      aria-checked={picker.doctorId === d.id}
+                      class={["choice", picker.doctorId === d.id && "is-selected"]}
+                      onclick={() => onDoctor(picker, d.id)}>
+                <span class="avatar" aria-hidden="true">{initials(d.name)}</span>
+                <span class="choice-text">
+                  <span class="choice-title">{d.name}, {d.credentials}</span>
+                  <span class="choice-meta">{d.bio}</span>
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <section class="step stack">
+            <div class="step-head row is-start">
+              <span class="step-num">3</span>
+              <h2>Day and time</h2>
+            </div>
+
+            <SlotPicker {picker} />
+          </section>
+
+          <form class="step stack" onsubmit={() => onSubmit(form, picker, ui)}>
+            <div class="step-head row is-start">
+              <span class="step-num">4</span>
+              <h2>Your details</h2>
+            </div>
+
+            <div class="details-grid">
+              <div class="field">
+                <label for="firstName">First name</label>
+                <input id="firstName" name="firstName" autocomplete="given-name" value={form.firstName}
+                       class={[ui.errors.firstName && "is-error"]} required>
+                <p e:if={ui.errors.firstName} class="error">{ui.errors.firstName?.[0]}</p>
+              </div>
+              <div class="field">
+                <label for="lastName">Last name</label>
+                <input id="lastName" name="lastName" autocomplete="family-name" value={form.lastName}
+                       class={[ui.errors.lastName && "is-error"]} required>
+                <p e:if={ui.errors.lastName} class="error">{ui.errors.lastName?.[0]}</p>
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" autocapitalize="none"
+                       spellcheck={false} value={form.email} class={[ui.errors.email && "is-error"]} required>
+                <p e:if={ui.errors.email} class="error">{ui.errors.email?.[0]}</p>
+              </div>
+              <div class="field">
+                <label for="phone">Phone</label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" value={form.phone}
+                       class={[ui.errors.phone && "is-error"]} required>
+                <p e:if={ui.errors.phone} class="error">{ui.errors.phone?.[0]}</p>
+              </div>
+              <div class="field">
+                <label for="birthDate">Date of birth</label>
+                <input id="birthDate" name="birthDate" type="date" autocomplete="bday" value={form.birthDate}
+                       class={[ui.errors.birthDate && "is-error"]}>
+                <p e:if={ui.errors.birthDate} class="error">{ui.errors.birthDate?.[0]}</p>
+              </div>
+            </div>
+
+            <div class="card summary">
+              <div class="card-body">
+                <dl>
+                  <dt>Visit</dt>
+                  <dd>{visitType(picker.type).label}, {visitType(picker.type).minutes} min</dd>
+                  <dt>Doctor</dt>
+                  <dd>{doctorName(doctors, heldDoctor(picker)) || "First available"}</dd>
+                  <dt>When</dt>
+                  <dd>{picker.startsAt ? formatDateTime(picker.startsAt) : "Choose a time above"}</dd>
+                </dl>
+              </div>
+            </div>
+
+            <p e:if={ui.error} class="error" role="alert">{ui.error}</p>
+
+            <p class="assurance">We'll email a confirmation with a link to fill in your intake form, change your time or cancel.</p>
+
+            <button type="submit"
+                    class={["is-primary is-lg is-block", ui.busy && "is-loading"]}
+                    disabled={!picker.startsAt || ui.busy}>
+              Book {picker.startsAt ? formatTime(picker.startsAt) : "visit"}
+            </button>
+          </form>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

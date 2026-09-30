@@ -1,0 +1,41 @@
+import "./style.css";
+import { PRACTICE, VisitSummary, formatDateTime, visitType } from "#app/shared/practice";
+
+/**
+ * Sent when a visit is booked or moved. Links to the visit page, where the
+ * patient fills in the intake form, reschedules or cancels.
+ *
+ * @email
+ */
+<html (visit: VisitSummary, rescheduled: boolean = false)>
+  <body class="email confirmation">
+    <div class="email-wrap">
+      <p class="email-brand">{PRACTICE.name}</p>
+      <h1 e:if={rescheduled}>Your visit has moved, {visit.firstName}</h1>
+      <h1 e:else>You're booked, {visit.firstName}</h1>
+      <p>Here are the details. We'll send a reminder the day before.</p>
+
+      <table class="email-details">
+        <tr><td class="label">When</td><td>{formatDateTime(visit.startsAt)}</td></tr>
+        <tr><td class="label">Visit</td><td>{visitType(visit.type).label}, {visitType(visit.type).minutes} minutes</td></tr>
+        <tr><td class="label">With</td><td>{visit.doctorName}</td></tr>
+        <tr><td class="label">Where</td><td>{PRACTICE.address}</td></tr>
+      </table>
+
+      <p e:if={!visit.intakeDone}>
+        Please fill in your intake form before you arrive. It takes about three minutes.
+      </p>
+
+      <p e:if={!visit.intakeDone}>
+        <a class="email-button" href={`/visit/${visit.token}/intake`}>Fill in intake form</a>
+      </p>
+      <p>
+        <a class={["email-button", !visit.intakeDone && "is-quiet"]} href={`/visit/${visit.token}`}>Reschedule or cancel</a>
+      </p>
+
+      <div class="email-footer">
+        <p>{PRACTICE.name} · {PRACTICE.address} · {PRACTICE.phone}</p>
+      </div>
+    </div>
+  </body>
+</html>

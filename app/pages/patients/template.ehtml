@@ -1,0 +1,98 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { PRACTICE, formatCalendarDate, formatShortDate } from "#app/shared/practice";
+import { PatientRow, recallState } from "#app/shared/services/patients";
+import { searchPatients } from "./services";
+
+interface PatientsUi {
+  query: string;
+  filter: "all" | "recall";
+  rows: PatientRow[];
+}
+
+const RECALL_PILLS = {
+  overdue: { label: "Overdue", tone: "is-danger" },
+  due: { label: "Due soon", tone: "is-warning" },
+  later: { label: "", tone: "" },
+  none: { label: "", tone: "" },
+};
+
+function onSearch(ui: PatientsUi) {
+  ui.rows = searchPatients(ui.query, ui.filter);
+}
+
+function onFilter(ui: PatientsUi, filter: "all" | "recall") {
+  ui.filter = filter;
+  onSearch(ui);
+  history.replaceState(null, "", filter === "recall" ? "/desk/patients?filter=recall" : "/desk/patients");
+}
+
+<html lang="en" class="page-patients" (
+  initial: PatientRow[],
+  filter: "all" | "recall",
+  today: string,
+  private ui: PatientsUi = { query: "", filter, rows: initial },
+)>
+  <head>
+    <title>Patients · {PRACTICE.name}</title>
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="desk" current="patients" />
+
+      <main class="app-main">
+        <div class="page-shell is-wide patients-main stack is-lg">
+          <h1>Patients</h1>
+
+          <div class="row toolbar">
+            <div class="tabs">
+              <div class="tab-list">
+                <button class={["tab", ui.filter === "all" && "is-active"]} onclick={() => onFilter(ui, "all")}>All patients</button>
+                <button class={["tab", ui.filter === "recall" && "is-active"]} onclick={() => onFilter(ui, "recall")}>Recall due</button>
+              </div>
+            </div>
+            <input type="search"
+                   aria-label="Search patients"
+                   placeholder="Search name, email or phone"
+                   value={ui.query}
+                   oninput={() => onSearch(ui)}>
+          </div>
+
+          <div class="card table-wrap">
+            <table e:if={ui.rows.length > 0}>
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Contact</th>
+                  <th>Last visit</th>
+                  <th>Next visit</th>
+                  <th>Recall</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr e:for={p of ui.rows}>
+                  <td><a class="patient-name" href={`/desk/patients/${p.id}`}>{p.lastName}, {p.firstName}</a></td>
+                  <td class="contact">{p.email}<br>{p.phone}</td>
+                  <td class="last"><span class="cell-label">Last visit </span>{p.lastVisit ? formatShortDate(p.lastVisit) : "None"}</td>
+                  <td class="next"><span class="cell-label">Next visit </span>{p.nextVisit ? formatShortDate(p.nextVisit) : "None booked"}</td>
+                  <td class="recall">
+                    <div class="cluster is-xs">
+                      <span><span class="cell-label">Recall </span>{p.recallDate ? formatCalendarDate(p.recallDate) : "Not set"}</span>
+                      <span e:if={RECALL_PILLS[recallState(p.recallDate, today)].label}
+                            class={["pill", RECALL_PILLS[recallState(p.recallDate, today)].tone]}>
+                        {RECALL_PILLS[recallState(p.recallDate, today)].label}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <p e:else class="empty">No patients match.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

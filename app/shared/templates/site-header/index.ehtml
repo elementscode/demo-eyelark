@@ -1,0 +1,36 @@
+import "./style.css";
+import { redirect, session } from "@elements/app";
+import { signout } from "#app/shared/services/auth";
+
+function onSignout() {
+  signout();
+  redirect("/signin");
+}
+
+<SiteHeader (area: "patient" | "desk" = "patient", current: string = "")>
+  <header class="site-header">
+    <div class={["page-shell row site-header-inner", area === "desk" && "is-wide"]}>
+      <a class="site-brand row" href={area === "desk" ? "/desk" : "/"}>
+        <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">
+          <path d="M2 16c3.6-6.4 8.4-9.6 14-9.6S26.4 9.6 30 16c-3.6 6.4-8.4 9.6-14 9.6S5.6 22.4 2 16Z" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+          <circle cx="16" cy="16" r="5.2" fill="currentColor"/>
+          <circle cx="18" cy="14" r="1.6" fill="var(--bg)"/>
+        </svg>
+        <span>Eyelark</span>
+        <span class="site-brand-tag" e:if={area === "desk"}>Front desk</span>
+      </a>
+
+      <nav e:if={area === "desk"} class="site-nav cluster is-lg">
+        <a href="/desk" class={[current === "day" && "is-active"]}>Day view</a>
+        <a href="/desk/patients" class={[current === "patients" && "is-active"]}>Patients</a>
+        <span class="site-user">{session.get("userName")}</span>
+        <button class="is-ghost is-sm" onclick={() => onSignout()}>Sign out</button>
+      </nav>
+
+      <nav e:else class="site-nav cluster is-lg">
+        <a href="/signin">Staff sign in</a>
+        <a class="button is-primary is-sm" href="/book">Book a visit</a>
+      </nav>
+    </div>
+  </header>
+</SiteHeader>

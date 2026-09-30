@@ -1,0 +1,80 @@
+.slot-picker .week-nav {
+  justify-content: space-between;
+}
+
+.slot-picker .week-label {
+  font-weight: var(--weight-medium);
+}
+
+.slot-picker .day-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.slot-picker .day {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: auto;
+  min-height: 0;
+  padding: var(--space-2) var(--space-1);
+  line-height: var(--leading-tight);
+}
+
+.slot-picker .day-name {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.slot-picker .day-num {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+}
+
+.slot-picker .day.is-selected,
+.slot-picker .slot.is-selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.slot-picker .day.is-selected .day-name {
+  color: inherit;
+}
+
+.slot-picker .slot-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+}
+
+.slot-picker .slot {
+  font-variant-numeric: tabular-nums;
+}
+
+.slot-picker .slots-empty {
+  margin: 0;
+  padding: var(--space-6);
+  border: 1px dashed var(--rule);
+  border-radius: var(--radius-surface);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+@media (max-width: 40rem) {
+  .slot-picker .day-num {
+    font-size: var(--text-md);
+  }
+}
+
+.slot-picker .week-nav {
+  flex-wrap: nowrap;
+}
+
+.slot-picker .week-nav button,
+.slot-picker .week-label {
+  white-space: nowrap;
+}

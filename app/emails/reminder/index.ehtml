@@ -1,0 +1,36 @@
+import "./style.css";
+import { PRACTICE, VisitSummary, formatDateTime, formatTime, visitType } from "#app/shared/practice";
+
+/**
+ * Sent the day before a visit.
+ *
+ * @email
+ */
+<html (visit: VisitSummary)>
+  <body class="email reminder">
+    <div class="email-wrap">
+      <p class="email-brand">{PRACTICE.name}</p>
+      <h1>See you at {formatTime(visit.startsAt)}, {visit.firstName}</h1>
+      <p>A reminder of your visit with {visit.doctorName}.</p>
+
+      <table class="email-details">
+        <tr><td class="label">When</td><td>{formatDateTime(visit.startsAt)}</td></tr>
+        <tr><td class="label">Visit</td><td>{visitType(visit.type).label}</td></tr>
+        <tr><td class="label">Where</td><td>{PRACTICE.address}</td></tr>
+      </table>
+
+      <p>Bring your current glasses or contact lenses and your insurance card.</p>
+
+      <p e:if={!visit.intakeDone}>
+        <a class="email-button" href={`/visit/${visit.token}/intake`}>Fill in intake form</a>
+      </p>
+      <p>
+        <a class={["email-button", !visit.intakeDone && "is-quiet"]} href={`/visit/${visit.token}`}>Reschedule or cancel</a>
+      </p>
+
+      <div class="email-footer">
+        <p>Can't make it? Reschedule from the link above or call {PRACTICE.phone}.</p>
+      </div>
+    </div>
+  </body>
+</html>

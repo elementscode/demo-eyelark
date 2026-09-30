@@ -1,0 +1,239 @@
+@import "#app/shared/styles/page.css";
+
+.page-desk .desk-main {
+  padding-block: var(--space-8) var(--space-16);
+}
+
+.page-desk .day-bar {
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.page-desk .day-bar h1 {
+  margin: 0;
+  font-size: var(--text-3xl);
+}
+
+.page-desk .day-controls input[type="date"] {
+  width: auto;
+}
+
+.page-desk .live {
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.page-desk .live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--success) 25%, transparent);
+}
+
+.page-desk .tallies {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.page-desk .tally {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-surface);
+  background: var(--bg-soft);
+}
+
+.page-desk .tally-value {
+  display: block;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+}
+
+.page-desk .tally-label {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.page-desk .columns {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
+  align-items: start;
+}
+
+.page-desk .doctor-head {
+  justify-content: space-between;
+}
+
+.page-desk .doctor-head h2 {
+  margin: 0;
+}
+
+.page-desk .appt-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-desk .appt {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--rule-soft, var(--rule));
+  border-left: 3px solid transparent;
+  transition: background-color 600ms ease;
+}
+
+.page-desk .appt:first-child {
+  border-top: none;
+}
+
+.page-desk .appt.is-checkedIn {
+  border-left-color: var(--accent);
+  background: color-mix(in oklab, var(--accent-soft) 60%, transparent);
+}
+
+.page-desk .appt.is-completed .appt-who,
+.page-desk .appt.is-completed .appt-time {
+  color: var(--ink-soft);
+}
+
+.page-desk .appt.is-cancelled {
+  opacity: 0.55;
+}
+
+.page-desk .appt.is-cancelled .appt-name {
+  text-decoration: line-through;
+}
+
+.page-desk .appt.is-fresh {
+  background: color-mix(in oklab, var(--warning, #f5b400) 18%, transparent);
+}
+
+.page-desk .appt-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+}
+
+.page-desk .appt-time small {
+  display: block;
+  font-weight: var(--weight-normal);
+  color: var(--ink-soft);
+}
+
+.page-desk .appt-name {
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.page-desk .appt-name:hover {
+  text-decoration: underline;
+}
+
+.page-desk .appt-who .cluster {
+  margin-top: var(--space-1);
+}
+
+.page-desk .appt-note {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.page-desk .appt-actions {
+  justify-content: flex-end;
+}
+
+.page-desk .empty {
+  margin: 0;
+  padding: var(--space-8) var(--space-5);
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+@media (max-width: 48rem) {
+  .page-desk .tallies {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-desk .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.page-desk .appt-time {
+  white-space: nowrap;
+}
+
+@media (max-width: 40rem) {
+  .page-desk .day-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .page-desk .day-bar h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .page-desk .appt {
+    grid-template-columns: 5rem minmax(0, 1fr);
+    padding-inline: var(--space-4);
+  }
+
+  .page-desk .appt-actions {
+    grid-column: 2;
+    justify-content: flex-start;
+  }
+}
+
+/* Each doctor's day as a column of tiles, no rules between them. */
+.page-desk .columns > .card {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.page-desk .columns .doctor-head {
+  padding: 0 0 var(--space-3);
+  border-bottom: none;
+  background: transparent;
+}
+
+.page-desk .appt-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.page-desk .appt,
+.page-desk .appt:first-child {
+  border: none;
+  border-radius: var(--radius-surface);
+  background: var(--bg-soft);
+}
+
+.page-desk .appt.is-checkedIn {
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1.5px var(--accent-edge);
+}
+
+.page-desk .appt.is-completed {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+
+.page-desk .appt.is-fresh {
+  background: color-mix(in oklab, var(--warning, #f5b400) 16%, var(--bg));
+}
+
+.page-desk .columns .empty {
+  border-radius: var(--radius-surface);
+  background: var(--bg-soft);
+}

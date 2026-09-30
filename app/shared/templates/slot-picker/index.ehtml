@@ -1,0 +1,91 @@
+import "./style.css";
+import { openSlots } from "#app/shared/services/schedule";
+import { AppointmentType, Slot, addDays, formatDay, formatTime, localDate } from "#app/shared/practice";
+
+/** What the picker is choosing for, and what it has chosen. */
+export interface PickerState {
+  type: AppointmentType;
+  doctorId: string;
+  date: string;
+  slots: Slot[];
+  startsAt: Date | null;
+}
+
+export function mondayOf(date: string): string {
+  let day = new Date(`${date}T12:00:00Z`).getUTCDay();
+
+  return addDays(date, day === 0 ? -6 : 1 - day);
+}
+
+export function weekDays(date: string): string[] {
+  let monday = mondayOf(date);
+
+  return [0, 1, 2, 3, 4].map((n) => addDays(monday, n));
+}
+
+/** Re-reads the open times, dropping a held time that is no longer open. */
+export function refreshPicker(picker: PickerState) {
+  picker.slots = openSlots(picker.date, picker.type, picker.doctorId);
+
+  let held = picker.startsAt?.getTime();
+  if (!picker.slots.some((s) => s.startsAt.getTime() === held)) {
+    picker.startsAt = null;
+  }
+}
+
+function onDate(picker: PickerState, date: string) {
+  picker.date = date;
+  picker.startsAt = null;
+  refreshPicker(picker);
+}
+
+function onWeek(picker: PickerState, weeks: number) {
+  let today = localDate();
+  let next = addDays(mondayOf(picker.date), weeks * 7);
+
+  onDate(picker, next < today ? today : next);
+}
+
+function isHeld(picker: PickerState, slot: Slot): boolean {
+  return picker.startsAt?.getTime() === slot.startsAt.getTime();
+}
+
+<SlotPicker (picker: PickerState)>
+  <div class="slot-picker stack">
+    <div class="week-nav row">
+      <button type="button"
+              class="is-ghost is-sm"
+              disabled={mondayOf(picker.date) <= localDate()}
+              onclick={() => onWeek(picker, -1)}>
+        ← Earlier
+      </button>
+      <span class="week-label">Week of {formatDay(mondayOf(picker.date), "short").split(", ").pop()}</span>
+      <button type="button" class="is-ghost is-sm" onclick={() => onWeek(picker, 1)}>Later →</button>
+    </div>
+
+    <div class="day-grid">
+      <button e:for={day of weekDays(picker.date)}
+              key={day}
+              type="button"
+              disabled={day < localDate()}
+              aria-pressed={picker.date === day}
+              class={["day", picker.date === day && "is-selected"]}
+              onclick={() => onDate(picker, day)}>
+        <span class="day-name">{formatDay(day, "short").split(",")[0]}</span>
+        <span class="day-num">{formatDay(day, "short").split(" ").pop()}</span>
+      </button>
+    </div>
+
+    <div e:if={picker.slots.length > 0} class="slot-grid">
+      <button e:for={slot of picker.slots}
+              key={slot.startsAt.getTime()}
+              type="button"
+              aria-pressed={isHeld(picker, slot)}
+              class={["slot", isHeld(picker, slot) && "is-selected"]}
+              onclick={() => picker.startsAt = slot.startsAt}>
+        {formatTime(slot.startsAt)}
+      </button>
+    </div>
+    <p e:else class="slots-empty">No open times on {formatDay(picker.date)}. Try another day.</p>
+  </div>
+</SlotPicker>

@@ -1,0 +1,162 @@
+@import "#app/shared/styles/page.css";
+
+.page-book .book-main {
+  padding-block: var(--space-10) var(--space-16);
+}
+
+.page-book .step {
+  gap: var(--space-4);
+}
+
+.page-book .step-head {
+  gap: var(--space-3);
+}
+
+.page-book .step-num {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.page-book .step-head h2 {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+
+.page-book .choice-grid {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+}
+
+.page-book .choice {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  height: auto;
+  min-height: 0;
+  padding: var(--space-4);
+  text-align: start;
+  white-space: normal;
+}
+
+.page-book .choice.is-selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.page-book .choice-title {
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.page-book .choice-meta {
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+  font-weight: var(--weight-normal);
+}
+
+.page-book .summary dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+}
+
+.page-book .summary dt {
+  color: var(--ink-soft);
+}
+
+.page-book .summary dd {
+  margin: 0;
+  font-weight: var(--weight-medium);
+}
+
+.page-book .choice {
+  line-height: var(--leading-snug);
+}
+
+.page-book .details-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.page-book .details-grid .field {
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .page-book .details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.page-book .practice-line {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+.page-book .is-doctors .choice {
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.page-book .choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.page-book .avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+}
+
+.page-book .choice.is-selected .avatar {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.page-book .assurance {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--ink-soft);
+}
+
+@media (max-width: 40rem) {
+  .page-book .book-main {
+    padding-block: var(--space-6) var(--space-12);
+  }
+
+  .page-book .is-types .choice {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.page-book .choice-grid.is-doctors {
+  grid-template-columns: minmax(0, 1fr);
+}

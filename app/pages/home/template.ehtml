@@ -1,0 +1,81 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { Doctor, PRACTICE, VISIT_TYPES } from "#app/shared/practice";
+
+function initials(name: string): string {
+  return name.replace(/^Dr\.\s*/, "").split(" ").map((w) => w[0]).join("");
+}
+
+<html lang="en" class="page-home" (doctors: Doctor[])>
+  <head>
+    <title>{PRACTICE.name} · Book an eye exam</title>
+    <meta name="description" content="Book an eye exam, contact lens fitting or follow-up online.">
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="patient" />
+
+      <main class="app-main">
+        <div class="page-shell">
+          <section class="hero stack is-lg">
+            <p class="eyebrow">{PRACTICE.name}</p>
+            <h1 class="display">Eye care that fits your week.</h1>
+            <p class="lede">
+              Pick a visit, a doctor and a time that works. You'll get a
+              confirmation right away and a reminder the day before.
+            </p>
+            <div class="cluster">
+              <a class="button is-primary is-lg" href="/book">Book a visit</a>
+              <a class="button is-ghost is-lg" href={`tel:${PRACTICE.phone}`}>Call {PRACTICE.phone}</a>
+            </div>
+          </section>
+
+          <section class="section stack is-lg">
+            <h2>What would you like to book?</h2>
+            <div class="visit-grid">
+              <a e:for={t of VISIT_TYPES} key={t.id} class="card visit-card" href={`/book?type=${t.id}`}>
+                <div class="card-body stack is-sm">
+                  <span class="visit-length">{t.minutes} minutes</span>
+                  <h3>{t.label}</h3>
+                  <p>{t.blurb}</p>
+                </div>
+              </a>
+            </div>
+          </section>
+
+          <section class="section stack is-lg">
+            <h2>Our doctors</h2>
+            <div class="doctor-grid">
+              <div e:for={d of doctors} class="card doctor-card">
+                <div class="card-body row is-start gap-4">
+                  <span class="avatar" aria-hidden="true">{initials(d.name)}</span>
+                  <div class="stack is-xs">
+                    <h3>{d.name}, {d.credentials}</h3>
+                    <p>{d.bio}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section info-grid">
+            <div class="stack is-sm">
+              <h2>Hours</h2>
+              <p>Monday to Friday, 9 to 5. Closed for lunch 12 to 1.</p>
+            </div>
+            <div class="stack is-sm">
+              <h2>Visit us</h2>
+              <p>{PRACTICE.address}</p>
+            </div>
+            <div class="stack is-sm">
+              <h2>Already booked?</h2>
+              <p>Use the link in your confirmation email to fill in your intake form or change your time.</p>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

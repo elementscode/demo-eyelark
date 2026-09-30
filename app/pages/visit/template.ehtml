@@ -1,0 +1,180 @@
+import "./style.css";
+import favicon from "#app/shared/assets/favicons/favicon.svg";
+import { SiteHeader } from "#app/shared/templates/site-header";
+import { SlotPicker, PickerState, refreshPicker } from "#app/shared/templates/slot-picker";
+import { cancelVisit, rescheduleVisit } from "./services";
+import {
+  Doctor,
+  PRACTICE,
+  STATUS_LABELS,
+  VisitSummary,
+  formatDateTime,
+  formatTime,
+  visitType,
+} from "#app/shared/practice";
+
+interface VisitUi {
+  mode: "view" | "reschedule" | "cancel";
+  error: string;
+  notice: string;
+}
+
+function newUi(): VisitUi {
+  return { mode: "view", error: "", notice: "" };
+}
+
+function isChangeable(visit: VisitSummary): boolean {
+  return visit.status === "booked" && visit.startsAt.getTime() > Date.now();
+}
+
+function onStartReschedule(ui: VisitUi, picker: PickerState) {
+  ui.mode = "reschedule";
+  ui.error = "";
+  refreshPicker(picker);
+}
+
+function onReschedule(state: { visit: VisitSummary }, ui: VisitUi, picker: PickerState) {
+  if (!picker.startsAt) {
+    return;
+  }
+
+  try {
+    state.visit = rescheduleVisit(state.visit.token, picker.startsAt, picker.doctorId);
+    ui.mode = "view";
+    ui.error = "";
+    ui.notice = `Moved to ${formatDateTime(state.visit.startsAt)}. We've emailed you the new details.`;
+  } catch (err: any) {
+    ui.error = err.message;
+    refreshPicker(picker);
+  }
+}
+
+function onCancel(state: { visit: VisitSummary }, ui: VisitUi) {
+  try {
+    state.visit = cancelVisit(state.visit.token);
+    ui.mode = "view";
+    ui.notice = "";
+  } catch (err: any) {
+    ui.error = err.message;
+  }
+}
+
+<html lang="en" class="page-visit" (
+  initialVisit: VisitSummary,
+  doctors: Doctor[],
+  justBooked: boolean,
+  intakeSent: boolean,
+  pickerDate: string,
+  private state: { visit: VisitSummary } = { visit: initialVisit },
+  private ui: VisitUi = newUi(),
+  private picker: PickerState = {
+    type: initialVisit.type,
+    doctorId: initialVisit.doctorId,
+    date: pickerDate,
+    slots: [],
+    startsAt: null,
+  },
+)>
+  <head>
+    <title>Your visit · {PRACTICE.name}</title>
+    <link rel="icon" type="image/svg+xml" href={favicon} />
+  </head>
+  <body>
+    <div class="app">
+      <SiteHeader area="patient" />
+
+      <main class="app-main">
+        <div class="page-shell is-form visit-main stack is-xl">
+          <div e:if={justBooked && state.visit.status === "booked" && !ui.notice} class="callout is-success">
+            <div class="callout-title">You're booked, {state.visit.firstName}.</div>
+            <div class="callout-body">A confirmation is on its way to {state.visit.email}.</div>
+          </div>
+
+          <div e:if={intakeSent && state.visit.status === "booked" && !ui.notice} class="callout is-success" role="status">
+            <div class="callout-title">Thanks, {state.visit.firstName}. We have your intake form.</div>
+            <div class="callout-body">Your doctor will read it before your visit.</div>
+          </div>
+
+          <div e:if={ui.notice} class="callout is-success" role="status">
+            <div class="callout-body">{ui.notice}</div>
+          </div>
+
+          <div e:if={state.visit.status === "cancelled"} class="callout is-warning">
+            <div class="callout-title">This visit is cancelled.</div>
+            <div class="callout-body"><a href={`/book?type=${state.visit.type}&email=${encodeURIComponent(state.visit.email)}`}>Book a new time</a> whenever you're ready.</div>
+          </div>
+
+          <div class="stack is-sm">
+            <p class="eyebrow">{visitType(state.visit.type).label}</p>
+            <p class="visit-when">{formatDateTime(state.visit.startsAt)}</p>
+            <p class="visit-meta">
+              {state.visit.doctorName} · {visitType(state.visit.type).minutes} minutes<br>
+              {PRACTICE.name}, {PRACTICE.address}
+            </p>
+            <div class="cluster is-sm">
+              <span class={["pill", state.visit.status === "cancelled" ? "is-danger" : "is-accent"]}>{STATUS_LABELS[state.visit.status]}</span>
+            </div>
+          </div>
+
+          <div e:if={state.visit.status !== "cancelled"} class="card">
+            <div class="card-body row task">
+              <div class="stack is-xs">
+                <h2>Intake form</h2>
+                <p e:if={state.visit.intakeDone}>Received. You can update it any time before your visit.</p>
+                <p e:else>Insurance, current eyewear, symptoms and medications. About three minutes.</p>
+              </div>
+              <a e:if={state.visit.intakeDone} class="button" href={`/visit/${state.visit.token}/intake`}>Review answers</a>
+              <a e:else class="button is-primary" href={`/visit/${state.visit.token}/intake`}>Fill in intake</a>
+            </div>
+          </div>
+
+          <div e:if={isChangeable(state.visit)} class="card">
+            <div e:if={ui.mode === "view"} class="card-body row task">
+              <div class="stack is-xs">
+                <h2>Need a different time?</h2>
+                <p>Change or cancel online up to the start of your visit.</p>
+              </div>
+              <div class="cluster is-sm">
+                <button class="is-ghost" onclick={() => { ui.mode = "cancel"; ui.error = ""; }}>Cancel visit</button>
+                <button onclick={() => onStartReschedule(ui, picker)}>Reschedule</button>
+              </div>
+            </div>
+
+            <div e:if={ui.mode === "reschedule"} class="card-body stack">
+              <h2>Pick a new time</h2>
+              <div class="field doctor-select">
+                <label for="doctor">Doctor</label>
+                <select id="doctor" value={picker.doctorId} onchange={() => refreshPicker(picker)}>
+                  <option value="">First available</option>
+                  <option e:for={d of doctors} value={d.id}>{d.name}</option>
+                </select>
+              </div>
+              <SlotPicker {picker} />
+              <p e:if={ui.error} class="error" role="alert">{ui.error}</p>
+            </div>
+            <div e:if={ui.mode === "reschedule"} class="card-foot">
+              <button class="is-ghost" onclick={() => ui.mode = "view"}>Keep current time</button>
+              <button class="is-primary"
+                      disabled={!picker.startsAt}
+                      onclick={() => onReschedule(state, ui, picker)}>
+                {picker.startsAt ? `Move to ${formatTime(picker.startsAt)}` : "Choose a time"}
+              </button>
+            </div>
+
+            <div e:if={ui.mode === "cancel"} class="card-body stack is-sm">
+              <h2>Cancel this visit?</h2>
+              <p>Your time will be released for someone else.</p>
+              <p e:if={ui.error} class="error" role="alert">{ui.error}</p>
+            </div>
+            <div e:if={ui.mode === "cancel"} class="card-foot">
+              <button class="is-ghost" onclick={() => ui.mode = "view"}>Keep visit</button>
+              <button class="is-danger" onclick={() => onCancel(state, ui)}>Cancel visit</button>
+            </div>
+          </div>
+
+          <p class="hint">Questions? Call us at {PRACTICE.phone}.</p>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

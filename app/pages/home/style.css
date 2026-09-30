@@ -1,0 +1,82 @@
+@import "#app/shared/styles/page.css";
+
+.page-home .hero {
+  padding-block: var(--space-16) var(--space-12);
+}
+
+.page-home .hero h1 {
+  max-width: 18ch;
+}
+
+.page-home .visit-grid,
+.page-home .doctor-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.page-home .visit-card {
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.page-home .visit-card:hover {
+  border-color: var(--accent-edge);
+  box-shadow: var(--shadow-sm);
+}
+
+.page-home .visit-card h3 {
+  margin: 0;
+}
+
+.page-home .visit-card p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.page-home .visit-length {
+  font-size: var(--text-sm);
+  color: var(--accent-deep);
+  font-weight: var(--weight-medium);
+}
+
+.page-home .doctor-card .avatar {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  font-weight: var(--weight-semibold);
+}
+
+.page-home .doctor-card h3,
+.page-home .doctor-card p {
+  margin: 0;
+}
+
+.page-home .doctor-card p {
+  color: var(--ink-soft);
+}
+
+.page-home .info-grid {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.page-home .info-grid h2 {
+  font-size: var(--text-lg);
+}
+
+.page-home .info-grid p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.page-home .visit-card h3,
+.page-home .doctor-card h3 {
+  font-size: var(--text-lg);
+}
