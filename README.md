@@ -33,12 +33,12 @@ Eyelark needed online booking with two doctors, visit emails, a live front desk 
 
 ### What Elements gave the app
 
-- **A live day view.** `scheduleChannel` in `app/shared/services/schedule.ts` is a Channel that says which day changed. Bookings, check-ins and intake forms all notify it, and the front desk page re-reads the day it is showing, so a new booking appears on the open day view as the patient confirms it.
-- **Booking in a few functions.** `bookAppointment` is an `@rpc` called straight from the booking page. `findOpenSlots` works out open times in one SQL query, and `claimSlot` locks the doctor rows first, so each time goes to one patient and "first available" picks the free doctor.
-- **Email jobs and a schedule.** The booking schedules `SendConfirmationJob` inside its transaction, and two lines in `index.ts` run `SendRemindersJob` every 15 minutes and `SendRecallNoticesJob` every day at 7am. The confirmation and reminder emails carry the patient's links to the intake form and to reschedule.
-- **Visit links for patients.** Each appointment has a private token, so `/visit/:token` lets a patient reschedule or cancel and `/visit/:token/intake` takes their intake form through `saveIntake`.
-- **Recall from the visit itself.** `completeVisit` in `app/pages/desk/services.ts` marks the visit done and, for a comprehensive exam, sets the patient's recall date a year out. Desk pages and rpcs check the staff session with `requireStaffOrRedirect` and `requireStaff` in `app/shared/services/auth.ts`.
-- **Data from SQL files.** Two migrations define the schema and seed two doctors, two front desk accounts, thirty patients with visit history and recall dates, and a week of appointments starting the day it runs. The project server applied each one as soon as it was saved.
+- **A live day view.** Bookings, check-ins and intake forms notify a channel with the day that changed, and the front desk re-reads the day it is showing, so a new booking appears on the open day view as the patient confirms it.
+- **Online booking.** The booking page finds open times for both doctors in one SQL query and books through an `@rpc` function. It locks the doctors first, so each time goes to one patient and "first available" picks the free doctor.
+- **Emails from jobs.** Booking schedules a confirmation email in the same transaction, and one-line cron schedules send reminders every 15 minutes and recall notices every morning. Each email links the patient to the intake form and to reschedule.
+- **Visit links for patients.** Each appointment has a private link where the patient reschedules, cancels or fills in the intake form straight from their email.
+- **Recall from the visit itself.** Marking a comprehensive exam complete sets the patient's next recall a year out. Front desk pages and server calls check the staff session.
+- **Data from SQL files.** Migrations define the schema and seed two doctors, two front desk accounts, thirty patients with visit history and recall dates, and a week of appointments from the day it runs. The project server applied each one as soon as it was saved.
 
 ### What the project server gave the agent
 
@@ -47,8 +47,6 @@ The project server runs alongside the agent and answers as soon as a file is sav
 ### What shipped
 
 The app type-checks with zero errors and all 34 tests pass. Every page works on desktop and phone, and live updates arrive across tabs, such as a patient's booking appearing on the front desk's open day view.
-
-Start in `app/shared/services/schedule.ts`.
 
 ## Seed data and demo accounts
 
