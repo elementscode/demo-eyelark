@@ -46,7 +46,7 @@ The project server runs alongside the agent and answers as soon as a file is sav
 
 ### What shipped
 
-The app type-checks with zero errors and all 34 tests pass. Every page was checked on desktop and phone before publishing, along with a booking from one tab appearing on the day view in another.
+The app type-checks with zero errors and all 34 tests pass. Every page works on desktop and phone, and live updates arrive across tabs, such as a patient's booking appearing on the front desk's open day view.
 
 Start in `app/shared/services/schedule.ts`.
 
