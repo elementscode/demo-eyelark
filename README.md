@@ -34,10 +34,15 @@ Eyelark needed online booking with two doctors, visit emails, a live front desk 
 ### What Elements gave the app
 
 - **A live day view.** Bookings, check-ins and intake forms notify a channel with the day that changed, and the front desk re-reads the day it is showing, so a new booking appears on the open day view as the patient confirms it.
+
 - **Online booking.** The booking page finds open times for both doctors in one SQL query and books through an `@rpc` function. It locks the doctors first, so each time goes to one patient and "first available" picks the free doctor.
+
 - **Emails from jobs.** Booking schedules a confirmation email in the same transaction, and one-line cron schedules send reminders every 15 minutes and recall notices every morning. Each email links the patient to the intake form and to reschedule.
+
 - **Visit links for patients.** Each appointment has a private link where the patient reschedules, cancels or fills in the intake form straight from their email.
+
 - **Recall from the visit itself.** Marking a comprehensive exam complete sets the patient's next recall a year out. Front desk pages and server calls check the staff session.
+
 - **Data from SQL files.** Migrations define the schema and seed two doctors, two front desk accounts, thirty patients with visit history and recall dates, and a week of appointments from the day it runs. The project server applied each one as soon as it was saved.
 
 ### What the project server gave the agent
