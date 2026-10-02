@@ -10,9 +10,6 @@ Patients book eye exams online by visit type and doctor and fill in intake forms
 
 ## Agent specs
 
-What one run of the prompt below took, from an empty Elements project to this
-app.
-
 - **Agent:** Claude Code, Opus 5.5 Medium
 - **Time:** 18 min
 - **Cost:** $6.14 at API rates, September 2026
@@ -66,31 +63,7 @@ and the sign-in page lists them.
 | maria@eyelark.test  | front desk |
 | jordan@eyelark.test | front desk |
 
-## The prompt
-
-```text
-Build a patient scheduling app named eyelark for a small optometry practice with
-two doctors.
-
-PATIENT
-- Book an appointment online: type (comprehensive exam, contact lens fitting,
-  follow-up), doctor or first available, and an open time.
-- Fill in an intake form before the visit: insurance, current glasses or
-  contacts, symptoms, medications.
-- Confirmation and reminder emails, with a link to reschedule.
-
-FRONT DESK (staff accounts)
-- Day view per doctor with each appointment's type and intake status.
-- Check patients in, mark visits complete.
-- Patient records: contact details, past visits, next recall date.
-- Recall: each completed exam sets a recall date a year out. Every morning,
-  patients due for a recall in the next 30 days get an email to book.
-
-Seed two doctors, two front desk staff, thirty patients with visit history,
-and a week of appointments. Show the staff logins on the sign-in page.
-
-The day view updates in real time as patients book and check in.
-```
+**Demo:** [Eyelark](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835)
 
 ## License
 
