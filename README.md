@@ -1,24 +1,12 @@
-![Eyelark, patient scheduling for an optometry practice built with Elements: the front desk day view with a column per doctor, each visit's type and intake status, checked-in patients and a visit that just checked in lighting up live.](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835/poster?v=bdd36b00c772)
+![Online booking with intake forms, built by Claude Code on Elements: the front desk day view with a column per doctor, each visit's type and intake status, checked-in patients and a visit that just checked in lighting up live.](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835/poster?v=bdd36b00c772)
 
-# Eyelark
+# Online booking with intake forms, built by Claude Code on Elements
 
-> A demo app built with [Elements](https://elements.dev).
+> Eyelark is a full-stack app built with Claude Code on Elements.
 
 Patients book eye exams online by visit type and doctor and fill in intake forms; the front desk gets a live day view, check-in, patient records and yearly recall emails.
 
-**Demo:** [Eyelark](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835)
-
-## Agent specs
-
-- **Agent:** Claude Code, Opus 5.5 Medium
-- **Time:** 18 min
-- **Cost:** $6.14 at API rates, September 2026
-
-## Get started
-
-```bash
-elements create eyelark -scaffold=elementscode/demo-eyelark
-```
+[Run this app on your machine](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835). Use this demo as inspiration, or as the starting point for your own app. Your agent creates a new app with this one as the scaffold, and you prompt it to add whatever features you want.
 
 Patients book at `/book` with no account. Staff sign in at `/signin` for the
 day view (`/desk`) and patient records (`/desk/patients`). Email is written to
@@ -27,8 +15,6 @@ day view (`/desk`) and patient records (`/desk/patients`). Email is written to
 ## How it's built
 
 Eyelark needed online booking with two doctors, visit emails, a live front desk view, and a daily recall run. Each of those is a part of Elements, so the agent spent its 18 minutes on the practice's scheduling itself.
-
-### What Elements gave the app
 
 - **A live day view.** Bookings, check-ins and intake forms notify a channel with the day that changed, and the front desk re-reads the day it is showing, so a new booking appears on the open day view as the patient confirms it.
 
@@ -42,29 +28,6 @@ Eyelark needed online booking with two doctors, visit emails, a live front desk 
 
 - **Data from SQL files.** Migrations define the schema and seed two doctors, two front desk accounts, thirty patients with visit history and recall dates, and a week of appointments from the day it runs. The project server applied each one as soon as it was saved.
 
-### What the project server gave the agent
+## Why Elements
 
-The project server runs alongside the agent and answers as soon as a file is saved: it type-checks the templates, TypeScript and SQL, applies migrations and reruns the tests, so every question came back right away and the agent kept building.
-
-### What shipped
-
-The app type-checks with zero errors and all 34 tests pass. Every page works on desktop and phone, and live updates arrive across tabs, such as a patient's booking appearing on the front desk's open day view.
-
-## Seed data and demo accounts
-
-The seed creates two doctors (Dr. Priya Raman and Dr. Samuel Okafor), thirty
-patients with up to three years of visit history (a handful due or overdue for
-a recall), and a week of appointments starting the day you run it, with some
-intake forms already in. Both staff accounts use the password `eyelark-desk`,
-and the sign-in page lists them.
-
-| Email               | Role       |
-| ------------------- | ---------- |
-| maria@eyelark.test  | front desk |
-| jordan@eyelark.test | front desk |
-
-**Demo:** [Eyelark](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835)
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+Elements is an integrated full-stack app framework and a project server. The project server checks the agent's work as it builds: it type-checks the server and browser code, analyzes the program, applies migrations and runs the tests, then reports the results to the agent. A security mistake, such as calling a server-only function from the browser, is a compile error. The agent reads the report and fixes its own mistakes before it tells you a feature is done. The same checks run on every feature you ask for next.
