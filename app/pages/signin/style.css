@@ -15,10 +15,6 @@
   font-size: var(--text-2xl);
 }
 
-.page-signin .field {
-  margin: 0;
-}
-
 .page-signin .logins {
   width: 100%;
   max-width: 26rem;
