@@ -6,6 +6,8 @@
 
 Patients book eye exams online by visit type and doctor and fill in intake forms; the front desk gets a live day view, check-in, patient records and yearly recall emails.
 
+Eyelark uses the `calm` theme from @elements/ui.
+
 [Run this app on your machine](https://elements.dev/demos/01a0f40e-45c9-7cc2-b95c-ac555590e835). Use this demo as inspiration, or as the starting point for your own app. Your agent creates a new app with this one as the scaffold, and you prompt it to add whatever features you want.
 
 Patients book at `/book` with no account. Staff sign in at `/signin` for the
