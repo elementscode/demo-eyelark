@@ -4,6 +4,9 @@ import { SiteHeader } from "#app/shared/templates/site-header";
 import { PRACTICE, formatCalendarDate, formatShortDate } from "#app/shared/practice";
 import { PatientRow, recallState } from "#app/shared/services/patients";
 import { searchPatients } from "./services";
+import { DataTable, DataTableColumn } from "@elements/ui/data-table";
+import { Empty } from "@elements/ui/empty";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@elements/ui/tabs";
 
 interface PatientsUi {
   query: string;
@@ -11,15 +14,60 @@ interface PatientsUi {
   rows: PatientRow[];
 }
 
-const RECALL_PILLS = {
-  overdue: { label: "Overdue", tone: "is-danger" },
-  due: { label: "Due soon", tone: "is-warning" },
-  later: { label: "", tone: "" },
-  none: { label: "", tone: "" },
-};
+const RECALL_LABELS = {
+  overdue: { label: "Overdue", tint: "danger" },
+  due: { label: "Due soon", tint: "warning" },
+  later: { label: "", tint: "" },
+  none: { label: "", tint: "" },
+} as const;
+
+function columns(today: string): DataTableColumn[] {
+  return [
+    {
+      id: "patient",
+      header: "Patient",
+      rowHeader: true,
+      value: (p) => `${p.lastName}, ${p.firstName}`,
+      cell: (p, name) => ({ text: String(name), href: `/desk/patients/${p.id}` }),
+    },
+    {
+      id: "contact",
+      header: "Contact",
+      value: (p) => p.email,
+      cell: (p) => ({ text: p.email, description: p.phone }),
+    },
+    {
+      id: "lastVisit",
+      header: "Last visit",
+      value: (p) => p.lastVisit,
+      cell: (p) => p.lastVisit ? formatShortDate(p.lastVisit) : "None",
+    },
+    {
+      id: "nextVisit",
+      header: "Next visit",
+      value: (p) => p.nextVisit,
+      cell: (p) => p.nextVisit ? formatShortDate(p.nextVisit) : "None booked",
+    },
+    {
+      id: "recall",
+      header: "Recall",
+      value: (p) => p.recallDate,
+      cell: (p) => ({
+        text: p.recallDate ? formatCalendarDate(p.recallDate) : "Not set",
+        description: RECALL_LABELS[recallState(p.recallDate, today)].label,
+      }),
+      background: (_, p) => RECALL_LABELS[recallState(p.recallDate, today)].tint,
+    },
+  ];
+}
 
 function onSearch(ui: PatientsUi) {
   ui.rows = searchPatients(ui.query, ui.filter);
+}
+
+function onQuery(ui: PatientsUi, query: string) {
+  ui.query = query;
+  onSearch(ui);
 }
 
 function onFilter(ui: PatientsUi, filter: "all" | "recall") {
@@ -46,51 +94,34 @@ function onFilter(ui: PatientsUi, filter: "all" | "recall") {
         <div class="page-shell is-wide patients-main stack is-lg">
           <h1>Patients</h1>
 
-          <div class="row toolbar">
-            <div class="tabs">
-              <div class="tab-list">
-                <button class={["tab", ui.filter === "all" && "is-active"]} onclick={() => onFilter(ui, "all")}>All patients</button>
-                <button class={["tab", ui.filter === "recall" && "is-active"]} onclick={() => onFilter(ui, "recall")}>Recall due</button>
-              </div>
-            </div>
-            <input type="search"
-                   aria-label="Search patients"
-                   placeholder="Search name, email or phone"
-                   value={ui.query}
-                   oninput={() => onSearch(ui)}>
-          </div>
-
-          <div class="card table-wrap">
-            <table e:if={ui.rows.length > 0}>
-              <thead>
-                <tr>
-                  <th>Patient</th>
-                  <th>Contact</th>
-                  <th>Last visit</th>
-                  <th>Next visit</th>
-                  <th>Recall</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr e:for={p of ui.rows}>
-                  <td><a class="patient-name" href={`/desk/patients/${p.id}`}>{p.lastName}, {p.firstName}</a></td>
-                  <td class="contact">{p.email}<br>{p.phone}</td>
-                  <td class="last"><span class="cell-label">Last visit </span>{p.lastVisit ? formatShortDate(p.lastVisit) : "None"}</td>
-                  <td class="next"><span class="cell-label">Next visit </span>{p.nextVisit ? formatShortDate(p.nextVisit) : "None booked"}</td>
-                  <td class="recall">
-                    <div class="cluster is-xs">
-                      <span><span class="cell-label">Recall </span>{p.recallDate ? formatCalendarDate(p.recallDate) : "Not set"}</span>
-                      <span e:if={RECALL_PILLS[recallState(p.recallDate, today)].label}
-                            class={["pill", RECALL_PILLS[recallState(p.recallDate, today)].tone]}>
-                        {RECALL_PILLS[recallState(p.recallDate, today)].label}
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <p e:else class="empty">No patients match.</p>
-          </div>
+          <Tabs value={ui.filter} onValueChange={(value) => onFilter(ui, value === "recall" ? "recall" : "all")}>
+            <TabsList label="Patients">
+              <TabsTrigger value="all">All patients</TabsTrigger>
+              <TabsTrigger value="recall">Recall due</TabsTrigger>
+            </TabsList>
+            <TabsContent value={ui.filter} class="patients-panel">
+              <DataTable data={ui.rows}
+                         columns={columns(today)}
+                         label="Patients"
+                         search={ui.query}
+                         searchMode="none"
+                         searchPlaceholder="Search name, email or phone"
+                         onSearchChange={(query) => onQuery(ui, query)}
+                         pagination={false}
+                         sortable={false}
+                         filterable={false}
+                         exportable={false}
+                         columnMenu={false}
+                         resizable={false}
+                         reorderable={false}
+                         pinnable={false}
+                         hideable={false}
+                         groupable={false}
+                         footer={false}>
+                <Empty slot="empty" description="No patients match." />
+              </DataTable>
+            </TabsContent>
+          </Tabs>
         </div>
       </main>
     </div>
