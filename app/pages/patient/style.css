@@ -41,10 +41,6 @@
   font-weight: var(--weight-semibold);
 }
 
-.page-patient td {
-  white-space: nowrap;
-}
-
 .page-patient tr.is-cancelled td {
   color: var(--ink-soft);
 }
