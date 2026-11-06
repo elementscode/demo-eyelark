@@ -91,10 +91,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.page-book .details-grid .field {
-  margin: 0;
-}
-
 @media (max-width: 40rem) {
   .page-book .details-grid {
     grid-template-columns: 1fr;
@@ -119,24 +115,6 @@
   flex-direction: column;
   gap: var(--space-1);
   min-width: 0;
-}
-
-.page-book .avatar {
-  display: grid;
-  place-items: center;
-  flex: none;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-}
-
-.page-book .choice.is-selected .avatar {
-  background: var(--accent);
-  color: var(--accent-ink);
 }
 
 .page-book .assurance {

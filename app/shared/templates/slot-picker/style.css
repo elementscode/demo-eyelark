@@ -55,15 +55,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.slot-picker .slots-empty {
-  margin: 0;
-  padding: var(--space-6);
-  border: 1px dashed var(--rule);
-  border-radius: var(--radius-surface);
-  color: var(--ink-soft);
-  text-align: center;
-}
-
 @media (max-width: 40rem) {
   .slot-picker .day-num {
     font-size: var(--text-md);

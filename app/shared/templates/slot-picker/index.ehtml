@@ -1,4 +1,6 @@
 import "./style.css";
+import { Button } from "@elements/ui/button";
+import { Empty } from "@elements/ui/empty";
 import { openSlots } from "#app/shared/services/schedule";
 import { AppointmentType, Slot, addDays, formatDay, formatTime, localDate } from "#app/shared/practice";
 
@@ -53,14 +55,14 @@ function isHeld(picker: PickerState, slot: Slot): boolean {
 <SlotPicker (picker: PickerState)>
   <div class="slot-picker stack">
     <div class="week-nav row">
-      <button type="button"
-              class="is-ghost is-sm"
+      <Button variant="ghost"
+              size="sm"
               disabled={mondayOf(picker.date) <= localDate()}
               onclick={() => onWeek(picker, -1)}>
         ← Earlier
-      </button>
+      </Button>
       <span class="week-label">Week of {formatDay(mondayOf(picker.date), "short").split(", ").pop()}</span>
-      <button type="button" class="is-ghost is-sm" onclick={() => onWeek(picker, 1)}>Later →</button>
+      <Button variant="ghost" size="sm" onclick={() => onWeek(picker, 1)}>Later →</Button>
     </div>
 
     <div class="day-grid">
@@ -86,6 +88,6 @@ function isHeld(picker: PickerState, slot: Slot): boolean {
         {formatTime(slot.startsAt)}
       </button>
     </div>
-    <p e:else class="slots-empty">No open times on {formatDay(picker.date)}. Try another day.</p>
+    <Empty e:else variant="outline" description={`No open times on ${formatDay(picker.date)}. Try another day.`} />
   </div>
 </SlotPicker>
