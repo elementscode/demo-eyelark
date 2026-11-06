@@ -117,6 +117,8 @@ function onFilter(ui: PatientsUi, filter: "all" | "recall") {
                          pinnable={false}
                          hideable={false}
                          groupable={false}
+                         viewMenu={false}
+                         savedViews={false}
                          footer={false}>
                 <Empty slot="empty" description="No patients match." />
               </DataTable>
