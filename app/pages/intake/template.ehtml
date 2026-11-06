@@ -8,6 +8,7 @@ import { Alert } from "@elements/ui/alert";
 import { Button } from "@elements/ui/button";
 import { Field } from "@elements/ui/field";
 import { Input } from "@elements/ui/input";
+import { RadioGroup } from "@elements/ui/radio-group";
 import { Textarea } from "@elements/ui/textarea";
 
 interface IntakeUi {
@@ -16,11 +17,11 @@ interface IntakeUi {
   busy: boolean;
 }
 
-const EYEWEAR: { id: Eyewear; label: string }[] = [
-  { id: "glasses", label: "Glasses" },
-  { id: "contacts", label: "Contact lenses" },
-  { id: "both", label: "Both" },
-  { id: "none", label: "Neither" },
+const EYEWEAR: { value: Eyewear; label: string }[] = [
+  { value: "glasses", label: "Glasses" },
+  { value: "contacts", label: "Contact lenses" },
+  { value: "both", label: "Both" },
+  { value: "none", label: "Neither" },
 ];
 
 /** A field's server error, until the patient fills the field in. */
@@ -90,12 +91,8 @@ function onSubmit(visit: VisitSummary, form: IntakeForm, ui: IntakeUi) {
 
             <fieldset>
               <legend>What you wear now</legend>
-              <div class="cluster eyewear-options" role="radiogroup">
-                <label e:for={o of EYEWEAR} key={o.id}>
-                  <input type="radio" name="eyewear" checked={form.eyewear === o.id} onchange={() => form.eyewear = o.id}>
-                  {o.label}
-                </label>
-              </div>
+              <RadioGroup value={form.eyewear} name="eyewear" options={EYEWEAR} orientation="horizontal"
+                          attrs={{ "aria-label": "What you wear now" }} />
               <Field e:if={form.eyewear !== "none"} label="Tell us about them">
                 <Input value={form.eyewearNotes} placeholder="Brand, age, anything that bothers you"
                        attrs={{ id: "eyewearNotes" }} />
