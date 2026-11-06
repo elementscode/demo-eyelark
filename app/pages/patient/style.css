@@ -41,25 +41,11 @@
   font-weight: var(--weight-semibold);
 }
 
-.page-patient .table-wrap {
-  overflow-x: auto;
-}
-
-.page-patient table {
-  width: 100%;
-}
-
-.page-patient td,
-.page-patient th {
+.page-patient td {
   white-space: nowrap;
 }
 
 .page-patient tr.is-cancelled td {
-  color: var(--ink-soft);
-}
-
-.page-patient .empty {
-  margin: 0;
   color: var(--ink-soft);
 }
 
@@ -73,45 +59,5 @@
   .page-patient .record-head {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .page-patient thead {
-    display: none;
-  }
-
-  .page-patient table,
-  .page-patient tbody {
-    display: block;
-  }
-
-  .page-patient tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-1) var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    border-top: 1px solid var(--rule);
-  }
-
-  .page-patient tr:first-child {
-    border-top: none;
-  }
-
-  .page-patient td {
-    grid-column: 1;
-    padding: 0;
-    border: none;
-    white-space: normal;
-    color: var(--ink-soft);
-  }
-
-  .page-patient td:first-child {
-    color: var(--ink);
-    font-weight: var(--weight-medium);
-  }
-
-  .page-patient td:last-child {
-    grid-column: 2;
-    grid-row: 1 / span 3;
-    align-self: center;
   }
 }
