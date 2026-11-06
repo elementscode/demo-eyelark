@@ -1,6 +1,7 @@
 import "./style.css";
 import { redirect, session } from "@elements/app";
 import { signout } from "#app/shared/services/auth";
+import { Button } from "@elements/ui/button";
 
 function onSignout() {
   signout();
@@ -24,12 +25,12 @@ function onSignout() {
         <a href="/desk" class={[current === "day" && "is-active"]}>Day view</a>
         <a href="/desk/patients" class={[current === "patients" && "is-active"]}>Patients</a>
         <span class="site-user">{session.get("userName")}</span>
-        <button class="is-ghost is-sm" onclick={() => onSignout()}>Sign out</button>
+        <Button variant="ghost" size="sm" onclick={() => onSignout()}>Sign out</Button>
       </nav>
 
       <nav e:else class="site-nav cluster is-lg">
         <a href="/signin">Staff sign in</a>
-        <a class="button is-primary is-sm" href="/book">Book a visit</a>
+        <Button variant="primary" size="sm" href="/book">Book a visit</Button>
       </nav>
     </div>
   </header>

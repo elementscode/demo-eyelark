@@ -41,17 +41,6 @@
   font-weight: var(--weight-medium);
 }
 
-.page-home .doctor-card .avatar {
-  display: grid;
-  place-items: center;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent-deep);
-  font-weight: var(--weight-semibold);
-}
-
 .page-home .doctor-card h3,
 .page-home .doctor-card p {
   margin: 0;
