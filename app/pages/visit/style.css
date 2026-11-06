@@ -20,7 +20,6 @@
   justify-content: space-between;
   gap: var(--space-4);
 }
-
 .page-visit .task h2 {
   margin: 0;
   font-size: var(--text-lg);
@@ -35,19 +34,14 @@
   max-width: 20rem;
 }
 
+.page-visit .card-body > h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
 @media (max-width: 40rem) {
   .page-visit .task {
     flex-direction: column;
     align-items: stretch;
   }
-}
-
-.page-visit .task > .button,
-.page-visit .task > .cluster {
-  flex: none;
-}
-
-.page-visit .card-body > h2 {
-  margin: 0;
-  font-size: var(--text-lg);
 }

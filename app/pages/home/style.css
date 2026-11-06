@@ -28,6 +28,7 @@
 
 .page-home .visit-card h3 {
   margin: 0;
+  font-size: var(--text-lg);
 }
 
 .page-home .visit-card p {
@@ -44,6 +45,10 @@
 .page-home .doctor-card h3,
 .page-home .doctor-card p {
   margin: 0;
+}
+
+.page-home .doctor-card h3 {
+  font-size: var(--text-lg);
 }
 
 .page-home .doctor-card p {
@@ -63,9 +68,4 @@
 .page-home .info-grid p {
   margin: 0;
   color: var(--ink-soft);
-}
-
-.page-home .visit-card h3,
-.page-home .doctor-card h3 {
-  font-size: var(--text-lg);
 }

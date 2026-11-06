@@ -1,9 +1,11 @@
 .slot-picker .week-nav {
+  flex-wrap: nowrap;
   justify-content: space-between;
 }
 
 .slot-picker .week-label {
   font-weight: var(--weight-medium);
+  white-space: nowrap;
 }
 
 .slot-picker .day-grid {
@@ -59,13 +61,4 @@
   .slot-picker .day-num {
     font-size: var(--text-md);
   }
-}
-
-.slot-picker .week-nav {
-  flex-wrap: nowrap;
-}
-
-.slot-picker .week-nav button,
-.slot-picker .week-label {
-  white-space: nowrap;
 }

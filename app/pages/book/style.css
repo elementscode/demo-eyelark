@@ -44,6 +44,7 @@
   height: auto;
   min-height: 0;
   padding: var(--space-4);
+  line-height: var(--leading-snug);
   text-align: start;
   white-space: normal;
 }
@@ -81,20 +82,10 @@
   font-weight: var(--weight-medium);
 }
 
-.page-book .choice {
-  line-height: var(--leading-snug);
-}
-
 .page-book .details-grid {
   display: grid;
   gap: var(--space-4);
   grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-@media (max-width: 40rem) {
-  .page-book .details-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .page-book .practice-line {
@@ -124,6 +115,10 @@
 }
 
 @media (max-width: 40rem) {
+  .page-book .details-grid {
+    grid-template-columns: 1fr;
+  }
+
   .page-book .book-main {
     padding-block: var(--space-6) var(--space-12);
   }
@@ -133,8 +128,4 @@
     justify-content: space-between;
     align-items: center;
   }
-}
-
-.page-book .choice-grid.is-doctors {
-  grid-template-columns: minmax(0, 1fr);
 }
