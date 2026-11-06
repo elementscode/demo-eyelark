@@ -16,6 +16,17 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.page-intake .eyewear-options {
+  gap: var(--space-2) var(--space-6);
+}
+
+.page-intake .eyewear-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-normal);
+}
+
 .page-intake .actions {
   justify-content: space-between;
 }
