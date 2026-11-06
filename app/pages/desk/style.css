@@ -14,10 +14,6 @@
   font-size: var(--text-3xl);
 }
 
-.page-desk .day-controls input[type="date"] {
-  width: auto;
-}
-
 .page-desk .live {
   gap: var(--space-2);
   font-size: var(--text-sm);
@@ -67,10 +63,12 @@
 
 .page-desk .doctor-head {
   justify-content: space-between;
+  padding-bottom: var(--space-3);
 }
 
 .page-desk .doctor-head h2 {
   margin: 0;
+  font-size: var(--text-lg);
 }
 
 .page-desk .appt-list {
@@ -112,10 +110,6 @@
   text-decoration: line-through;
 }
 
-.page-desk .appt.is-fresh {
-  background: color-mix(in oklab, var(--warning, #f5b400) 18%, transparent);
-}
-
 .page-desk .appt-time {
   font-variant-numeric: tabular-nums;
   font-weight: var(--weight-semibold);
@@ -149,13 +143,6 @@
 
 .page-desk .appt-actions {
   justify-content: flex-end;
-}
-
-.page-desk .empty {
-  margin: 0;
-  padding: var(--space-8) var(--space-5);
-  color: var(--ink-soft);
-  text-align: center;
 }
 
 @media (max-width: 48rem) {
@@ -194,19 +181,6 @@
 }
 
 /* Each doctor's day as a column of tiles, no rules between them. */
-.page-desk .columns > .card {
-  border: none;
-  background: transparent;
-  box-shadow: none;
-  overflow: visible;
-}
-
-.page-desk .columns .doctor-head {
-  padding: 0 0 var(--space-3);
-  border-bottom: none;
-  background: transparent;
-}
-
 .page-desk .appt-list {
   display: grid;
   gap: var(--space-3);
@@ -230,10 +204,5 @@
 }
 
 .page-desk .appt.is-fresh {
-  background: color-mix(in oklab, var(--warning, #f5b400) 16%, var(--bg));
-}
-
-.page-desk .columns .empty {
-  border-radius: var(--radius-surface);
-  background: var(--bg-soft);
+  background: color-mix(in oklab, var(--warning) 16%, var(--bg));
 }

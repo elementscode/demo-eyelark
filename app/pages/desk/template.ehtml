@@ -2,6 +2,13 @@ import "./style.css";
 import favicon from "#app/shared/assets/favicons/favicon.svg";
 import type { Listener } from "@elements/app";
 import { SiteHeader } from "#app/shared/templates/site-header";
+import { Alert } from "@elements/ui/alert";
+import { Badge } from "@elements/ui/badge";
+import { Button } from "@elements/ui/button";
+import { ButtonGroup } from "@elements/ui/button-group";
+import { DatePicker } from "@elements/ui/date-picker";
+import { Empty } from "@elements/ui/empty";
+import { Icon } from "@elements/ui/icon";
 import {
   PRACTICE,
   STATUS_LABELS,
@@ -119,16 +126,18 @@ function lastName(name: string): string {
                 <span class="live-dot"></span>
                 Live
               </span>
-              <div class="button-group">
-                <button aria-label="Previous day" onclick={() => onDate(state, addDays(state.day.date, -1))}>←</button>
-                <button disabled={state.day.date === localDate()} onclick={() => onDate(state, localDate())}>Today</button>
-                <button aria-label="Next day" onclick={() => onDate(state, addDays(state.day.date, 1))}>→</button>
-              </div>
-              <input type="date" aria-label="Go to date" value={state.picked} onchange={() => onDate(state, state.picked)}>
+              <ButtonGroup label="Day">
+                <Button icon label="Previous day" onclick={() => onDate(state, addDays(state.day.date, -1))}><Icon name="arrow-left" /></Button>
+                <Button disabled={state.day.date === localDate()} onclick={() => onDate(state, localDate())}>Today</Button>
+                <Button icon label="Next day" onclick={() => onDate(state, addDays(state.day.date, 1))}><Icon name="arrow-right" /></Button>
+              </ButtonGroup>
+              <DatePicker value={state.picked} label="Go to date" align="end"
+                          format={{ month: "short", day: "numeric", year: "numeric" }}
+                          onValueChange={(date) => onDate(state, date)} />
             </div>
           </div>
 
-          <p e:if={state.error} class="error" role="alert">{state.error}</p>
+          <Alert e:if={state.error} variant="danger" description={state.error} />
 
           <div class="tallies">
             <div class="tally">
@@ -150,10 +159,10 @@ function lastName(name: string): string {
           </div>
 
           <div class="columns">
-            <section e:for={doctor of state.day.doctors} class="card">
-              <div class="card-head row doctor-head">
+            <section e:for={doctor of state.day.doctors} class="doctor-col">
+              <div class="row doctor-head">
                 <h2>{doctor.name}</h2>
-                <span class="pill">{forDoctor(state.day, doctor.id).filter((a) => a.status !== "cancelled").length} visits</span>
+                <Badge variant="secondary">{forDoctor(state.day, doctor.id).filter((a) => a.status !== "cancelled").length} visits</Badge>
               </div>
 
               <ul e:if={forDoctor(state.day, doctor.id).length > 0} class="appt-list">
@@ -167,16 +176,10 @@ function lastName(name: string): string {
                   <div class="appt-who">
                     <a class="appt-name" href={`/desk/patients/${a.patientId}`}>{a.patientName}</a>
                     <div class="cluster is-xs">
-                      <span class="pill">{visitType(a.type).label}</span>
-                      <span e:if={a.status !== "cancelled" && a.intakeDone} class="pill is-success">
-                        <span class="pill-dot"></span>
-                        Intake in
-                      </span>
-                      <span e:if={a.status !== "cancelled" && !a.intakeDone} class="pill is-warning">
-                        <span class="pill-dot"></span>
-                        No intake
-                      </span>
-                      <span e:if={a.firstVisit} class="pill is-info">New patient</span>
+                      <Badge variant="secondary">{visitType(a.type).label}</Badge>
+                      <Badge e:if={a.status !== "cancelled" && a.intakeDone} variant="success" dot>Intake in</Badge>
+                      <Badge e:if={a.status !== "cancelled" && !a.intakeDone} variant="warning" dot>No intake</Badge>
+                      <Badge e:if={a.firstVisit} variant="info">New patient</Badge>
                     </div>
                     <div e:if={a.status === "checkedIn" && a.checkedInAt} class="appt-note">
                       Arrived {formatTime(a.checkedInAt!)}
@@ -184,27 +187,29 @@ function lastName(name: string): string {
                   </div>
 
                   <div class="appt-actions cluster is-xs">
-                    <button e:if={a.status === "booked" && state.day.date === localDate()}
-                            class="is-sm"
+                    <Button e:if={a.status === "booked" && state.day.date === localDate()}
+                            size="sm"
                             onclick={() => onAction(state, "checkIn", a.id)}>
                       Check in
-                    </button>
-                    <button e:if={a.status === "checkedIn"}
-                            class="is-ghost is-sm"
+                    </Button>
+                    <Button e:if={a.status === "checkedIn"}
+                            variant="ghost"
+                            size="sm"
                             onclick={() => onAction(state, "undo", a.id)}>
                       Undo
-                    </button>
-                    <button e:if={a.status === "checkedIn"}
-                            class="is-primary is-sm"
+                    </Button>
+                    <Button e:if={a.status === "checkedIn"}
+                            variant="primary"
+                            size="sm"
                             onclick={() => onAction(state, "complete", a.id)}>
                       Mark complete
-                    </button>
-                    <span e:if={a.status === "completed"} class="pill is-success">{STATUS_LABELS.completed}</span>
-                    <span e:if={a.status === "cancelled"} class="pill is-danger">{STATUS_LABELS.cancelled}</span>
+                    </Button>
+                    <Badge e:if={a.status === "completed"} variant="success">{STATUS_LABELS.completed}</Badge>
+                    <Badge e:if={a.status === "cancelled"} variant="danger">{STATUS_LABELS.cancelled}</Badge>
                   </div>
                 </li>
               </ul>
-              <p e:else class="empty">No visits with {lastName(doctor.name)} this day.</p>
+              <Empty e:else variant="muted" description={`No visits with ${lastName(doctor.name)} this day.`} />
             </section>
           </div>
         </div>
